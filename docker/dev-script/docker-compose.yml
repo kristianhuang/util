@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  redis:
+    image: redis:6.2-alpine
+    networks:
+      - dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - "dev-redis-conf:/etc/redis"
+    container_name: dev-redis
+
+  mysql:
+    image: mysql:5.7
+    networks:
+      - dev
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=B0RItAFBBIpzboP9
+      - MYSQL_DB=dev
+    volumes:
+      - "dev-mysql-conf:/etc/mysql"
+      - "dev-mysql-data:/var/lib/mysql"
+    container_name: dev-mysql
+
+volumes:
+  dev-redis-conf:
+    name: "dev-redis-conf"
+  dev-mysql-conf:
+    name: "dev-mysql-conf"
+  dev-mysql-data:
+    name: "dev-mysql-data"
+networks:
+  dev:
+    name: dev
