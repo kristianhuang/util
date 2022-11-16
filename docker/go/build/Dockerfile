@@ -12,7 +12,7 @@ COPY go.mod .
 
 RUN go mod tidy
 
-COPY . .
+COPY .. .
 
 RUN go build -ldflags="-w -s" -a -installsuffix cgo -o APPNAME APPPATH
 

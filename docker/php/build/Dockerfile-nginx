@@ -1,0 +1,9 @@
+FROM nginx:1.21.4
+
+ENV TZ=Asia/Shanghai
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone
+
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx/conf/* /etc/nginx/conf.d/

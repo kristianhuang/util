@@ -1,0 +1,89 @@
+version: "3.7"
+services:
+  mysql:
+    # arm64
+    image: ibex/debian-mysql-server-5.7:latest
+    # image: mysql:5.7 
+    ports:
+      - "3306:3306"
+    networks:
+      - develop
+    volumes:
+      - "develop-mysql-data:/var/lib/mysql"
+      - "develop-mysql-conf:/etc/mysql"
+      - "develop-mysql-log:/var/log"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${app-mysql-pwd}
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_DATABASE=${app-mysql-database}
+      - TZ=Asia/Shanghai
+    command: "--character-set-server=utf8"
+    container_name: develop-mysql
+  redis:
+    build:
+      context: .
+      dockerfile: Dockerfile-redis
+    networks:
+      - develop
+    ports:
+      - "6379:6379"
+    volumes:
+      - "develop-redis-conf:/etc/redis"
+      - "develop-redis-log:/var/log/redis"
+      - "develop-redis-data:/data"
+    container_name: develop-redis
+    image: develop-redis
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - "develop"
+    ports:
+      - "9000:9000"
+    volumes:
+      - "develop-php-log:/var/log/php-fpm"
+      - "${app-project}/:/var/www/html/app"
+    container_name: develop-php
+    image: develop-php
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    networks:
+      - "develop"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "develop-nginx-conf:/etc/nginx"
+      - "develop-nginx-log:/var/log/nginx"
+      - "${app-project}/:/usr/share/nginx/html"
+    container_name: develop-nginx
+    image: develop-nginx
+    depends_on:
+      - php
+      - mysql
+      - redis
+volumes:
+  develop-nginx-conf:
+    name: "develop-nginx-conf"
+  develop-nginx-log:
+    name: "develop-nginx-log"
+  develop-php-log:
+    name: "develop-php-log"
+  develop-redis-conf:
+    name: "develop-redis-conf"
+  develop-redis-log:
+    name: "develop-redis-log"
+  develop-redis-data:
+    name: "develop-redis-data"
+  develop-mysql-conf:
+    name: "develop-mysql-conf"
+  develop-mysql-log:
+    name: "develop-mysql-log"
+  develop-mysql-data:
+    name: "develop-mysql-data"
+networks:
+  develop:
+    name: develop
